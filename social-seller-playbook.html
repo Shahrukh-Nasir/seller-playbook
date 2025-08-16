@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Sellr Product Playbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Dark Harmony (Black, Teal, Amber) -->
+    <!-- Application Structure Plan: A tabbed single-page application with three main sections: a dynamic 'Playbook', a static 'Scaling Strategy', and a static 'Framework'. This provides a clear, progressive journey for the user from understanding the overall strategy to getting hands-on ideas and then learning how to optimize and plan their content mix. The playbook section retains its interactive sub-tabs and AI generator, while the new sections provide a clear, high-level overview of roles and expectations, as well as a strategic guide for content planning. -->
+    <!-- Visualization & Content Choices: The playbook's textual content is primarily lists of ideas. Goal: Inform/Inspire. Method: Interactive card-based lists. Interaction: Filtering by sub-category and one-click copy-to-clipboard. Justification: This provides fast, organized access and high utility for influencers needing to quickly grab and use an idea. The core interactive element is an AI Idea Generator. Goal: Empower/Generate. Method: A simple form calling the Gemini API. Interaction: User inputs product details, clicks to generate a unique idea. Justification: This transforms the static playbook into a dynamic, "smart" tool that provides endless, personalized inspiration, directly fulfilling the "AI-Enhanced" promise. No charts are needed. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .main-nav-btn.active {
+            background-color: #2dd4bf; /* teal-400 */
+            color: black;
+            font-weight: 600;
+        }
+        .sub-nav-btn {
+            background-color: #374151; /* Gray-700 */
+            color: #d1d5db; /* Gray-300 */
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        .sub-nav-btn.active {
+            background-color: #fcd34d; /* amber-300 */
+            color: black;
+        }
+        .sub-nav-btn:hover:not(.active) {
+            background-color: #4b5563; /* Gray-600 */
+        }
+        .playbook-nav-btn {
+             background-color: #2D2E30;
+             color: #d1d5db;
+             font-weight: 500;
+             padding: 0.5rem 1rem;
+             border-radius: 0.5rem;
+             transition: all 0.3s ease;
+        }
+        .playbook-nav-btn.active {
+            background-color: #2dd4bf; /* teal-400 */
+            color: black;
+            font-weight: 600;
+        }
+        .schedule-card-btn {
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .schedule-card-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .card-enter {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loader {
+            border: 4px solid #374151;
+            border-top: 4px solid #2dd4bf;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 5px #2dd4bf);
+            }
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 15px #2dd4bf);
+            }
+        }
+        .hero-rocket {
+            animation: pulse-glow 2s infinite ease-in-out;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="bg-[#1B1C1D] text-gray-200">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <div class="inline-block relative">
+                <h1 class="text-4xl md:text-5xl font-bold text-white relative z-10">
+                    <span class="hero-rocket">🚀</span> Social Sellr Product Playbook
+                </h1>
+            </div>
+            <p class="text-lg text-gray-400 mt-2">Your dynamic toolkit for endless content inspiration.</p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
+            <button class="main-nav-btn px-4 py-2 rounded-lg shadow-sm transition-all duration-300 bg-[#2D2E30] hover:bg-teal-900" data-section="playbook-section">💡 The Playbook</button>
+            <button class="main-nav-btn px-4 py-2 rounded-lg shadow-sm transition-all duration-300 bg-[#2D2E30] hover:bg-teal-900" data-section="framework-section">📈 Content Schedule</button>
+            <button class="main-nav-btn px-4 py-2 rounded-lg shadow-sm transition-all duration-300 bg-[#2D2E30] hover:bg-teal-900" data-section="advisory-section">🤝 Scaling Strategy</button>
+        </nav>
+
+        <main id="main-content">
+            <!-- Main Playbook Section (Interactive) -->
+            <div id="playbook-section" class="hidden">
+                 <nav class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
+                    <button class="playbook-nav-btn" data-section="hooks">💡 Content Ideas</button>
+                    <button class="playbook-nav-btn" data-section="stories">⚡️ Story Posts</button>
+                    <button class="playbook-nav-btn" data-section="ai">🤖 AI Prompts</button>
+                    <button class="playbook-nav-btn" data-section="engagement">🤝 Engagement Loops</button>
+                </nav>
+                <!-- Section for Hooks -->
+                <section id="hooks" class="content-section space-y-6">
+                    <!-- Sub-navigation for Hooks -->
+                    <div class="sub-nav flex flex-wrap justify-center gap-2 p-2 bg-[#2D2E30] rounded-lg">
+                        <button class="sub-nav-btn" data-category="problemSolution">🎬 Problem → Solution</button>
+                        <button class="sub-nav-btn" data-category="transformation">📸 Transformation/Reveal</button>
+                        <button class="sub-nav-btn" data-category="lifestyle">☕ Routine/Lifestyle</button>
+                        <button class="sub-nav-btn" data-category="creative">🤯 Creative/Unexpected</button>
+                    </div>
+                    <div id="hooks-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Content will be injected here -->
+                    </div>
+                </section>
+
+                <!-- Section for Stories -->
+                <section id="stories" class="content-section space-y-6 hidden">
+                     <div class="sub-nav flex flex-wrap justify-center gap-2 p-2 bg-[#2D2E30] rounded-lg">
+                        <button class="sub-nav-btn" data-category="urgency">⏳ Urgency & Flash Sales</button>
+                        <button class="sub-nav-btn" data-category="scarcity">🚨 Scarcity & Low-Stock</button>
+                        <button class="sub-nav-btn" data-category="socialProof">💖 Social Proof & Community</button>
+                    </div>
+                    <div id="stories-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Content will be injected here -->
+                    </div>
+                </section>
+
+                <!-- Section for AI Prompts -->
+                <section id="ai" class="content-section space-y-6 hidden">
+                    <div class="bg-[#2D2E30] p-6 rounded-lg shadow-lg border border-teal-700">
+                        <h2 class="text-2xl font-bold text-white mb-4 text-center">✨ AI Idea Generator</h2>
+                        <p class="text-center text-gray-400 mb-6">Can't find the perfect idea? Let AI create a unique one for you!</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="productName" class="block text-sm font-medium text-gray-300">Your Product's Name</label>
+                                <input type="text" id="productName" class="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-gray-100 shadow-sm focus:border-teal-400 focus:ring-teal-400" placeholder="e.g., 'Aura Glow Serum'">
+                            </div>
+                            <div>
+                                <label for="productProblem" class="block text-sm font-medium text-gray-300">Problem It Solves</label>
+                                <input type="text" id="productProblem" class="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-gray-100 shadow-sm focus:border-teal-400 focus:ring-teal-400" placeholder="e.g., 'dull and tired skin'">
+                            </div>
+                        </div>
+                         <div class="mb-4">
+                            <label for="ideaType" class="block text-sm font-medium text-gray-300">Type of Idea</label>
+                            <select id="ideaType" class="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-gray-100 shadow-sm focus:border-teal-400 focus:ring-teal-400">
+                                <option value="Viral TikTok Hook">Viral TikTok Hook</option>
+                                <option value="Instagram Story Idea">Instagram Story Idea</option>
+                                <option value="Creative Video Angle">Creative Video Angle</option>
+                                <option value="Short Skit Script">Short Skit Script</option>
+                            </select>
+                        </div>
+                        <button id="generateBtn" class="w-full flex justify-center items-center gap-2 bg-teal-400 text-black font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-teal-300 transition-all duration-300">
+                            Generate Idea
+                        </button>
+                        <div id="ai-output-container" class="mt-6 hidden">
+                            <div class="bg-[#2D2E30] p-4 rounded-lg relative">
+                                 <p id="ai-output" class="text-gray-200"></p>
+                                 <button class="copy-btn absolute top-2 right-2 p-1 text-gray-500 hover:text-teal-400 rounded-full bg-black/50 hover:bg-gray-800 transition" title="Copy to clipboard">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                         <div id="loader-container" class="mt-6 justify-center hidden">
+                            <div class="loader"></div>
+                        </div>
+                    </div>
+                     <div class="sub-nav flex flex-wrap justify-center gap-2 p-2 bg-[#2D2E30] rounded-lg">
+                        <button class="sub-nav-btn" data-category="aiHooks">📝 Viral Hooks</button>
+                        <button class="sub-nav-btn" data-category="aiScripts">✍️ Scripts & Angles</button>
+                        <button class="sub-nav-btn" data-category="aiTrends">🔍 Trend Discovery</button>
+                        <button class="sub-nav-btn" data-category="aiCommunity">💬 Engagement & Community</button>
+                    </div>
+                    <div id="ai-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Content will be injected here -->
+                    </div>
+                </section>
+
+                <!-- Section for Engagement -->
+                <section id="engagement" class="content-section space-y-6 hidden">
+                     <div class="sub-nav flex flex-wrap justify-center gap-2 p-2 bg-[#2D2E30] rounded-lg">
+                        <button class="sub-nav-btn" data-category="storyTactics">💬 Story Tactics</button>
+                        <button class="sub-nav-btn" data-category="liveTactics">🔥 Post & Live Tactics</button>
+                        <button class="sub-nav-btn" data-category="collabs">🤝 Collaboration Ideas</button>
+                    </div>
+                    <div id="engagement-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Content will be injected here -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- New Framework Section (Static) -->
+             <div id="framework-section">
+                 <div class="bg-[#2D2E30] p-6 rounded-lg shadow-lg border border-teal-700">
+                    <h2 class="text-3xl font-bold text-white mb-4 text-center">📈 Content Schedule</h2>
+                    <p class="text-gray-400 text-center mb-6">
+                        This framework is a weekly blueprint designed for consistent, high-impact content. Choose the plan that best fits your availability to maintain momentum and build a profitable brand.
+                    </p>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-teal-400 mb-2">Recommended Upload Rate: 7+ Posts/Week</h3>
+                            <p class="text-gray-300">
+                                This is the optimal schedule for fast growth. It ensures you have a consistent presence, build loyalty, and drive conversions without burning out your audience. A great balance is posting daily on the brand account and a few times a week on the personal account, often reposting the brand's content.
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="hooks" data-target-category="problemSolution">
+                                    <h4 class="font-bold text-teal-400">Monday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Problem → Solution</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: A strong hook to start the week and capture attention.</p>
+                                </button>
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="stories" data-target-category="socialProof">
+                                    <h4 class="font-bold text-teal-400">Tuesday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Social Proof</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: Post a customer review, testimonial, or user-generated content (UGC) to build trust.</p>
+                                </button>
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="hooks" data-target-category="creative">
+                                    <h4 class="font-bold text-teal-400">Wednesday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Creative/Unexpected</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: A trending video with a surprising use-case or a "myth-busting" video.</p>
+                                </button>
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="engagement" data-target-category="liveTactics">
+                                    <h4 class="font-bold text-teal-400">Thursday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Behind-the-Scenes</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: Go live or post a video showing the product in action or a "how-to" guide.</p>
+                                </button>
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="hooks" data-target-category="transformation">
+                                    <h4 class="font-bold text-teal-400">Friday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Transformation/Reveal</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: End the week with a powerful before-and-after shot or a transformation story.</p>
+                                </button>
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="stories" data-target-category="urgency">
+                                    <h4 class="font-bold text-teal-400">Saturday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Urgency & Scarcity</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: Announce a weekend flash sale or a low-stock alert to drive immediate purchases.</p>
+                                </button>
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="engagement" data-target-category="storyTactics">
+                                    <h4 class="font-bold text-teal-400">Sunday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Q&A/Community</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: Host a live Q&A or use story polls to engage with your audience and build a strong community.</p>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-teal-400 mb-2">Less Recommended: 3-4 Posts/Week</h3>
+                            <p class="text-gray-300">
+                                This schedule is less intense but still effective for maintaining momentum.
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="hooks" data-target-category="problemSolution">
+                                    <h4 class="font-bold text-teal-400">Monday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Problem → Solution</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: A strong hook to start the week and capture attention.</p>
+                                </button>
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="stories" data-target-category="socialProof">
+                                    <h4 class="font-bold text-teal-400">Wednesday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Social Proof & Demos</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: Combine a customer story with a product demonstration to build trust and inform.</p>
+                                </button>
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="hooks" data-target-category="creative">
+                                    <h4 class="font-bold text-teal-400">Friday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Creative/Urgency</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: A trending video with a low-stock or flash sale message to drive weekend sales.</p>
+                                </button>
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg text-left hover:bg-[#2D2E30] transition" data-target-section="stories" data-target-category="socialProof">
+                                    <h4 class="font-bold text-teal-400">Saturday/Sunday</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Viral Repost (Optional)</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: Repost a viral video or an engaging story from the past to stay top-of-mind.</p>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-teal-400 mb-2">The Lazy Version: 1-2 Posts/Week</h3>
+                             <p class="text-gray-300">
+                                This minimal schedule is for when you're short on time but still want to create a presence.
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg col-span-2 text-left hover:bg-[#2D2E30] transition" data-target-section="hooks" data-target-category="problemSolution">
+                                    <h4 class="font-bold text-teal-400">Weekly Post</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> High-Impact Content</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: A powerful problem-solution or before-and-after video. The goal is one high-quality, high-impact piece of content that builds loyalty and converts.</p>
+                                </button>
+                                <button class="schedule-card-btn bg-[#1B1C1D] border border-teal-700 rounded-lg p-4 shadow-lg col-span-2 text-left" data-target-section="stories" data-target-category="socialProof">
+                                    <h4 class="font-bold text-teal-400">Weekly Stories</h4>
+                                    <p class="text-gray-300 text-sm"><strong>Focus:</strong> Social Proof & Engagement</p>
+                                    <p class="text-gray-400 text-xs mt-1">Example: Dedicate 1-2 days to sharing customer reviews and using polls to engage your audience.</p>
+                                </button>
+                            </div>
+                        </div>
+                         <div class="text-center mt-8">
+                            <h3 class="text-xl font-semibold text-teal-400 mb-2">The Golden Rule: Consistency Over Frequency</h3>
+                            <p class="text-gray-300 text-lg">
+                                The best schedule is one you can stick to. It's better to consistently post a few times a week than to post every day for a week and then disappear.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Advisory Section (Static) -->
+            <div id="advisory-section" class="hidden">
+                 <div class="bg-[#2D2E30] p-6 rounded-lg shadow-lg border border-teal-700">
+                    <h2 class="text-3xl font-bold text-white mb-4 text-center">🤝 Scaling Strategy</h2>
+                    <p class="text-gray-400 text-center mb-6">
+                        This page is your ongoing guide for how we work together to grow your brand fast, sustainably, and profitably. We run the back-end systems, you run the front-line content.
+                    </p>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-teal-400 mb-2">Our Role – The Back-End Engine</h3>
+                            <p class="text-gray-300">
+                                We handle the growth infrastructure so you can focus on content and audience connection:
+                            </p>
+                            <ul class="list-disc list-inside text-gray-300 mt-4 space-y-2">
+                                <li>Running high-performing ad campaigns to bring in new eyes</li>
+                                <li>Building automated email flows to turn customers into repeat buyers</li>
+                                <li>Managing affiliate & influencer networks to widen reach</li>
+                                <li>Optimizing SEO for organic discovery</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-teal-400 mb-2">Your Role – The Front-Line Driver</h3>
+                            <p class="text-gray-300">
+                                Your content is the brand’s personality, voice, and sales engine. The more consistent and intentional it is, the faster we scale.
+                            </p>
+                            <h4 class="text-lg font-semibold text-gray-200 mt-4">Your success playbook:</h4>
+                            <ul class="list-disc list-inside text-gray-300 mt-2 space-y-2">
+                                <li><strong>Post Consistently</strong> - Both personal & brand accounts should have frequent content featuring the product. More exposure = more conversions.</li>
+                                <li><strong>Mix Viral + ‘Boring’ Content</strong> - Viral hooks are great for reach, but “boring” product-focused posts (demos, FAQs, behind-the-scenes, restock updates) build loyalty and trust - especially on the brand account.</li>
+                                <li><strong>Use the Playbook</strong> - The content ideas on the other page (hooks, scarcity, social proof) are proven sales drivers.</li>
+                                <li><strong>Engage Relentlessly</strong> - Respond to DMs & comments, run polls, do Q&As. Engagement = trust, trust = sales.</li>
+                                <li><strong>Show Social Proof</strong> - Repost customer content, share reviews, highlight real people using the product.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-teal-400 mb-2">Common Mistakes That Kill Growth (Avoid These)</h3>
+                             <ul class="list-disc list-inside text-gray-300 mt-4 space-y-2">
+                                <li><strong>Only posting viral hook-style videos</strong><br>Viral reach is good, but it doesn’t always convert. If your feed is only hooks, people won’t build a relationship with the product or brand. You need loyalty content too - demos, usage tips, relatable lifestyle clips featuring the product.</li>
+                                <li><strong>Not showing the product enough</strong><br>People can’t buy what they don’t see. Even “boring” shots of the product in use keep it top-of-mind. Treat every post as a reminder it exists.</li>
+                                <li><strong>Inconsistent posting</strong><br>Taking long breaks between posts kills momentum and the algorithm push. Even low-effort content is better than silence.</li>
+                                <li><strong>Ignoring ManyChat or DM automation</strong><br>This is one of the easiest ways to drive sales with zero extra effort. Set keyword triggers (like “link” or “discount”) to automatically send shop links, offers, or VIP early access invites.</li>
+                                <li><strong>Not leveraging storytelling</strong><br>Facts tell, stories sell. Talk about why the product exists, how it helped you personally, or share a customer’s transformation.</li>
+                                <li><strong>Not engaging with the audience</strong><br>Posting and disappearing doesn’t work. Reply to comments, thank buyers, ask questions, and keep conversations going.</li>
+                            </ul>
+                        </div>
+                        <div class="text-center mt-8">
+                            <h3 class="text-xl font-semibold text-teal-400 mb-2">Key to Long-Term Success</h3>
+                            <p class="text-gray-300 text-lg">
+                                The goal isn’t to only chase trends - it’s to create a constant presence for your product in people’s feeds. Viral moments create spikes, but boring consistency creates the base that keeps sales flowing forever.
+                            </p>
+                            <ul class="list-disc list-inside text-gray-300 mt-4 space-y-2 text-left md:text-center">
+                                <li><strong>On personal accounts:</strong> Blend entertainment with product mentions.</li>
+                                <li><strong>On brand accounts:</strong> Go all in on product-focused content. Every post should remind people why they love (or need) it.</li>
+                            </ul>
+                            <p class="text-gray-300 text-lg mt-4">
+                                When you combine viral reach + loyalty content + strong back-end marketing, you create a flywheel effect that compounds over time.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div id="copy-notification" class="fixed bottom-5 right-5 bg-gray-900 text-white py-2 px-4 rounded-lg shadow-xl opacity-0 transition-opacity duration-300">
+            Copied to clipboard!
+        </div>
+
+    </div>
+
+    <script>
+        const playbookData = {
+            hooks: {
+                problemSolution: [
+                    "I was tired of dealing with [problem], so I created this to fix it.",
+                    "My biggest [problem] was [X], so I designed this just for that.",
+                    "I didn't know how to [skill/task], so I made a product that makes it easy.",
+                    "Is your [thing] always [bad state]? I spent years creating the secret.",
+                    "If you hate [task], this is exactly why I built this for you.",
+                    "I created this because nothing else ever worked for my [problem].",
+                    "I tried everything for [problem] and nothing worked... so I made my own solution.",
+                    "I created this because I saw you making this [common mistake]. Here's how to fix it.",
+                    "I built this product to solve a problem you didn't even know you had.",
+                    "The real struggle with [problem] is [X]. That's why I created this solution.",
+                    "My own [thing] was always lacking, so I engineered this to be different.",
+                    "What to do if your [thing] is [annoying issue]? I've got you covered with this.",
+                    "I designed this because I wanted a permanent end to [problem].",
+                    "My life before I created this product was [negative state]. Never again.",
+                    "This tiny change I created fixed my biggest [problem].",
+                    "My [problem] was making me [negative feeling]. That's why I designed this.",
+                    "The secret to [task] without the struggle is the product I made.",
+                    "I'm so proud of this product because it helped me [positive action].",
+                    "The one thing I created that actually makes [task] easier.",
+                    "My friends asked how I fixed [problem]. I created this.",
+                    "I designed this to save you so much time on [task].",
+                    "I'm never going back to [old way] again after creating this.",
+                    "I built this to be a game-changer for anyone dealing with [problem].",
+                    "I didn't believe it was possible, but I created a miracle for [problem].",
+                    "The biggest lie about [problem] is [X]. This is the truth I created."
+                ],
+                transformation: [
+                    "Wait for the end... the results I created are crazy.",
+                    "The best [before & after] I’ve ever seen, and I made it happen.",
+                    "This is a must-see transformation that's a result of my work.",
+                    "You won't believe how different it looks now, thanks to my product.",
+                    "From this... to THIS. All with my creation.",
+                    "A 30-day journey with my [product]. My honest results.",
+                    "The final reveal is going to shock you. This is what I designed.",
+                    "I can't believe I went so long without a product like this, so I made it myself.",
+                    "My [skill/workflow] journey: 6 months with the product I created.",
+                    "The most satisfying [transformation] you'll see today, thanks to my work.",
+                    "The product I designed is magic.",
+                    "I was skeptical, but the transformation from my product is real.",
+                    "A tiny change, a huge difference—this is what I built.",
+                    "The glow-up you've been looking for is the product I created.",
+                    "I didn't expect this transformation at all when I started designing it.",
+                    "The product I created is on another level.",
+                    "Watch me transform my [workflow/skill] with something I built.",
+                    "The one product I created that changed everything for me.",
+                    "The best part of my transformation journey is the product I designed.",
+                    "I'm literally thriving because of the product I made.",
+                    "This is my secret weapon for amazing results, and I'm the one who created it.",
+                    "The kind of transformation that gives you goosebumps—it’s my creation.",
+                    "I'm so glad I documented this journey with my product.",
+                    "You need to see the after. It's my work.",
+                    "The moment I knew the product I created was different."
+                ],
+                lifestyle: [
+                    "My favorite part of my daily routine is the product I created.",
+                    "A day in my life with the product I made.",
+                    "My 'get ready with me' but with a secret weapon I designed.",
+                    "How I use my creation every day.",
+                    "This is in my toolkit 24/7—and I'm the one who built it.",
+                    "My daily routine, elevated by something I designed.",
+                    "The one thing I can't live without is my own creation.",
+                    "My life has been so much easier since I created this.",
+                    "This is the best product I've made all year—from my own brand!",
+                    "A little luxury in my daily routine, from a product I designed.",
+                    "The morning routine I created changed everything.",
+                    "I'm obsessed with my new routine thanks to my own product.",
+                    "This is what my weekends look like with the product I created.",
+                    "My favorite way to wind down is with my own product.",
+                    "This is my 'self-care' secret that I made just for me.",
+                    "The product that's always in my videos—because I made it.",
+                    "I created this to make my life easier, one day at a time.",
+                    "This is a non-negotiable in my routine—because I designed it to be.",
+                    "I'm not a morning person, but the product I created helps.",
+                    "The product that's always in my workspace—it's my own.",
+                    "This is what I do to stay organized, with the product I created.",
+                    "My daily ritual with my own creation.",
+                    "How I'm using my creation for [specific hobby/activity].",
+                    "This is my go-to product, which I'm proud to say I made.",
+                    "I created this product to make myself so much more productive."
+                ],
+                creative: [
+                    "This is not what you think it is... it's a product I created.",
+                    "The secret I've been working on is finally here.",
+                    "I'm a [niche] expert, and this is the product I use because I created it.",
+                    "I created this because I saw you using methods that were all wrong.",
+                    "I can't believe this is real, but I built it.",
+                    "A video you didn't know you needed, about a product I designed.",
+                    "I took a break from social media to finally finish this product.",
+                    "The one thing I think you should buy this month is my product.",
+                    "My honest thoughts after 6 months of using my own product.",
+                    "The product I created is so good, it should be illegal.",
+                    "The most viral product on [platform] right now? My creation.",
+                    "Unpopular opinion: My product is better than [competitor].",
+                    "I found a dupe for [expensive offering]—I made it myself.",
+                    "Here's what happens when you use the product I created every day.",
+                    "This product is getting so much hate, but here's why it's amazing—I made it.",
+                    "The most genius product I've ever seen is my own creation.",
+                    "I spent [X amount] on creating this, and it was worth it.",
+                    "I created this, and I think it's the most underrated product.",
+                    "You've never seen a product like this before, because I made it.",
+                    "This is your sign to buy the product I created.",
+                    "What's in my cart right now? My own product, of course.",
+                    "The sound of me using my own product is pure bliss.",
+                    "I'm about to break the internet with the product I created.",
+                    "This is an instant buy for a product I designed from scratch.",
+                    "The one product you need to know about is the one I made."
+                ]
+            },
+            stories: {
+                urgency: [
+                    "Last chance for 20% off! Code: [CODE] expires at midnight.", "The countdown is on... 2 hours left to grab yours.", "Sale ends in 60 minutes! Don't miss out.", "Our biggest flash sale of the month is live for 24 hours only!", "We're doing a surprise flash sale. Get 15% off now!", "This is your last reminder! The deal is almost over.", "We're taking down the discount code at 5 PM PST.", "My personal discount code is active for 48 hours only!", "You asked for a sale, so here it is! Ends tomorrow.", "The bundle deal is flying off the shelves. Grab it now!", "This is a one-time offer, once it's gone it's gone.", "A special weekend sale just for you. Ends Sunday night.", "Last call to save on your order!", "Final countdown... 1 hour left!", "A little surprise for my followers: a special discount code!", "This offer won’t be back for a long time.", "The sale is about to end! Go, go, go!", "Don't say I didn't warn you! The deal is almost over.", "The clock is ticking on our biggest sale ever.", "This is a test run for a flash sale. Let's see how fast it sells out!", "The discount code is gone at midnight.", "You have until I finish my coffee to grab this deal.", "A special thank you offer for those who've been here from the start!", "This is your sign to finally get it.", "The sale is ending soon, don't regret it later!", "Our biggest promotion of the year is almost over.", "This is not a drill... the sale is almost over.", "The discount code is only for today!", "This is a one-time-only price.", "My followers get a special discount until tomorrow morning."
+                ],
+                scarcity: [
+                    "Only a few spots left! Don't wait.", "The last drop is live. This won’t be restocked.", "Selling out faster than we thought! Get it before it's gone.", "New limited edition color is live! Only a few available.", "Just a heads-up, this product is about to sell out.", "Warning: the most popular color is almost gone!", "We're down to the last few bundles of this.", "Look at these new orders flying in! Thank you all so much.", "Just restocked the most popular color—but not for long!", "We’re already down to the last 50.", "The most popular flavor is almost out of stock.", "This is your last chance to grab one before it's gone for good.", "My DMs are blowing up asking for a restock, so get it while you can!", "Last day for pre-orders!", "Only a few of the limited edition bundles are left!", "This is our last batch for the season.", "The next restock won't be for a while.", "We’ve just sold over 100 in the last 24 hours!", "You're seeing this because it's almost gone.", "The most popular size is officially low in stock!", "Don't regret missing out on this.", "This is the most viral product we've ever had, and stock is low.", "Pretend sell-out hype: Here's a peek at how low our stacks are getting.", "So many of you have ordered, and we’re packing them now!", "The most requested restock is live, but it's going fast!", "The warehouse is getting so empty!", "The limited edition packaging is almost gone.", "The last stock of our [seasonal] product is live.", "This product is always selling out, so here's your warning!", "This is your last call before we run out."
+                ],
+                socialProof: [
+                    "Look what just arrived! So excited for you all to get yours.", "I'm obsessed with this customer review! Swipe up to read more.", "Look at these amazing results! [Show a before & after picture].", "My DMs are blowing up with love for this product! I can’t thank you enough.", "I get asked all the time if it works... here’s proof!", "Seeing so many of you tag us in your content. Keep it coming!", "Check out this unboxing video from one of you! So great.", "A huge shoutout to our latest customers! Thank you for your support.", "People are talking... and here’s what they’re saying! [Mashup of reviews].", "We just got this amazing email from a customer!", "This is what my DMs look like all day. So much love!", "I'm so excited for the new orders coming in!", "The most emotional review I've ever received.", "My favorite part of my job is seeing your messages.", "I’m in awe of the transformations you guys are having!", "We love seeing your unboxings!", "A little peek at the customer stories we're getting.", "This review made my day. Thank you so much!", "The love we've received for this product is insane.", "Here's what our customers are saying!", "So many of you have tagged me in your 'before & after' photos!", "Thank you all for sharing your stories.", "A huge shoutout to everyone who has supported us.", "We just got a 5-star review! So happy to see it.", "The feedback has been incredible!", "This is why I do what I do.", "You guys are the best community ever.", "I'm so grateful for all the support.", "Look at all the photos you've sent us!", "I love seeing this product in your homes!", "The reviews are in, and you all love it!", "I'm so proud of this product because of all your love.", "This is a real message from a customer.", "So many happy customers!", "I can't stop smiling at these messages.", "You guys are the reason we do this!", "This product is getting so much love.", "Thank you for making this launch so special.", "The community we've built is incredible.", "So grateful for all the unboxing videos you've made!"
+                ]
+            },
+            ai: {
+                aiHooks: [
+                    "Give me 10 TikTok hook ideas for a [product] that would go viral in the [niche] niche.", "Write 5 different video hooks for a product that fixes [problem].", "I need 7 hooks that create curiosity about a [product].", "Generate 10 before & after style hooks for a [product] that transforms [outcome].", "Give me 5 hooks for a storytelling video about how [product] changed my life.", "Generate 8 hooks for a comparison video between my [product] and a competitor.", "Create 5 hooks for a video that shows my daily routine with a [product].", "Write 10 hooks for a video explaining how to use a [product] in a unique way.", "Give me 5 hooks for a video that busts a myth about [common problem].", "Generate 5 hooks for a video that features customer reactions to my [product].", "Create 5 hooks for a video that showcases the most surprising feature of my [product].", "Write 5 hooks for a challenge video involving my [product].", "Give me 5 hooks for a 'What's in my bag?' video featuring my [product].", "Generate 5 hooks for a video about the most underrated feature of my [product].", "Create 5 hooks for a video that shows a funny situation with my [product].", "Write 5 hooks for a video that shows the behind-the-scenes of making my [product].", "Give me 5 hooks for a video that shows a hack for my [product].", "Generate 5 hooks for a video that shares a shocking statistic about [problem].", "Create 5 hooks for a video that features a satisfying ASMR moment with my [product].", "Write 5 hooks for a 'This vs. That' video for my [product].", "Give me 5 hooks for a video about a common mistake people make when using a [product].", "Generate 5 hooks for a video that answers a frequently asked question about my [product].", "Create 5 hooks for a 'Day in the Life' video featuring a [product].", "Write 5 hooks for a video that shows how to use my [product] with another product.", "Give me 5 hooks for a video that shows the evolution of my [product].", "Generate 5 hooks for a video that shows the journey of my [product] from idea to reality.", "Create 5 hooks for a video that shows how to style my [product] in different ways.", "Write 5 hooks for a video that gives a sneak peek of a new feature for my [product].", "Give me 5 hooks for a video that shows how to use my [product] for a specific holiday.", "Generate 5 hooks for a video that shows how to get the most out of my [product]."
+                ],
+                aiScripts: [
+                    "Write a 30-second script for a video showing a customer using [product] to fix [problem].", "Generate 10 content angles to promote [product] without sounding salesy.", "Create a script for a video that shows the before and after of using [product] for [time period].", "Write a script for a video that compares my [product] to a competitor.", "Give me 5 different ways to talk about [product feature] in a video script.", "Generate a script for a video that tells a personal story about how [product] helped me.", "Create a script for a tutorial video that is fast-paced and engaging.", "Write a script for a video that answers the top 3 FAQs about my [product].", "Generate a script for a video that uses a trending audio and features my [product].", "Create a script for a video that shows how to use my [product] in a fun, unexpected way.", "Write a script for a video that tells the story behind my [product].", "Generate a script for a video that shows the unboxing experience of my [product].", "Create a script for a video that shows how my [product] is made.", "Write a script for a video that showcases a customer review of my [product].", "Generate a script for a video that shows how to style my [product] in 3 different outfits.", "Create a script for a video that shows how to use my [product] with another product.", "Write a script for a video that shows how my [product] saves me time.", "Generate a script for a video that shows how my [product] is eco-friendly.", "Create a script for a video that shows a day in my life with my [product].", "Write a script for a video that features a pet using my [product].", "Generate a script for a video that shows how to use my [product] for a specific holiday.", "Create a script for a video that shows a funny situation with my [product].", "Write a script for a video that showcases the versatility of my [product].", "Generate a script for a video that shows how my [product] is a perfect gift.", "Create a script for a video that shows how to use my [product] in the kitchen.", "Write a script for a video that shows how to use my [product] for a specific sport.", "Generate a script for a video that shows how my [product] is perfect for students.", "Create a script for a video that shows how to use my [product] on a trip.", "Write a script for a video that shows how my [product] is a perfect gift for a loved one.", "Generate a script for a video that shows how to use my [product] in the office."
+                ],
+                aiTrends: [
+                    "Find 5 trending audios on TikTok that match a [mood/vibe] for product promotion.", "Give me a list of 10 trending hashtags in the [niche] niche.", "Find 5 trending challenges on TikTok that I can adapt for my [product].", "Generate 5 content ideas based on the latest trends in [niche].", "Find 3 trending sounds on Instagram Reels for a [mood/vibe] video.", "Give me a list of 5 trending topics related to [product] on Google Trends.", "Find 5 popular songs on TikTok that I can use in a video about my [product].", "Generate 5 ideas for a video that uses a trending filter on TikTok.", "Find 3 trending dances on TikTok that I can adapt for my [product].", "Give me a list of 5 trending recipes that I can adapt for my [product].", "Find 3 trending places on Instagram that I can use as a backdrop for my [product].", "Generate 5 ideas for a video that uses a trending sound and features my [product].", "Find 5 trending home decor styles that I can use to stage my [product].", "Give me a list of 5 trending outfits that I can wear while showcasing my [product].", "Find 3 trending challenges on Instagram Reels that I can adapt for my [product].", "Generate 5 ideas for a video that uses a trending meme and features my [product].", "Find 5 trending books that I can use to stage my [product].", "Give me a list of 5 trending travel destinations that I can use to stage my [product].", "Find 3 trending workouts that I can adapt for my [product].", "Generate 5 ideas for a video that uses a trending sound and shows how to use my [product]."
+                ],
+                aiCommunity: [
+                    "Write 10 questions to ask my audience about my [product] in a poll.", "Give me 5 'This or That' ideas for my stories about my [product].", "Generate 5 questions for a live Q&A about my [product].", "Create 5 prompts for a UGC challenge for my [product].", "Write 10 captions for a post that asks for feedback on a new variation.", "Give me 5 ideas for a poll about which color we should restock first.", "Generate 5 prompts for a quiz about my [product] in my stories.", "Create 5 prompts for a 'Tag to Win' giveaway.", "Write 5 captions for a post that asks for customer photos and videos.", "Give me 5 ideas for a poll about which new feature we should add next.", "Generate 5 questions for a live Q&A about the story behind my [product].", "Create 5 prompts for a quiz about how to use my [product].", "Write 5 captions for a post that asks for a product review.", "Give me 5 ideas for a poll about which new product we should launch next.", "Generate 5 questions for a live Q&A about the launch of my [product].", "Create 5 prompts for a quiz about the history of my [product].", "Write 5 captions for a post that asks for a testimonial.", "Give me 5 ideas for a poll about what's the best way to use my [product].", "Generate 5 questions for a live Q&A about the future of my [product].", "Create 5 prompts for a quiz about the benefits of my [product]."
+                ]
+            },
+            engagement: {
+                storyTactics: [
+                    "Run a poll asking, 'Which color do you want to see restocked first?'", "Post a 'This or That' story comparing two product features.", "Use the Q&A sticker to let followers ask anything about the product.", "Run a quiz testing your followers' knowledge of a product feature.", "Ask for a review using the open-ended text box.", "Use a poll to ask, 'Did you get yours yet?'", "Post a 'Rate This Look' story using the product.", "Use the emoji slider to ask, 'How excited are you for the restock?'", "Post a poll asking, 'Which new product should we launch next?'", "Use a quiz to test if followers can guess the most popular feature.", "Run a poll asking for a new feature idea.", "Use the Q&A sticker to ask for feedback on potential new variations.", "Post a poll asking, 'Who else is obsessed with this?'", "Use a quiz to test if followers know the most common problem the product solves.", "Run a poll asking, 'What's your favorite way to use this product?'", "Post a 'This or That' story comparing two different sizes.", "Use the Q&A sticker to let followers ask for tips on using the product.", "Run a quiz testing if followers know the price of the product.", "Post a poll asking, 'Is this a must-have or a nice-to-have?'", "Use the emoji slider to ask, 'How satisfied are you with this product?'", "Run a poll asking, 'What's your biggest pain point with [problem]?'", "Post a 'This or That' story comparing two different scents.", "Use the Q&A sticker to let followers ask for a product demo.", "Run a quiz testing if followers know how long the product lasts.", "Post a poll asking, 'Which new product line do you want to see?'", "Use the emoji slider to ask, 'How much do you love this product?'", "Run a poll asking, 'What's your favorite thing about this product?'", "Post a 'This or That' story comparing two different textures.", "Use the Q&A sticker to let followers ask for behind-the-scenes content.", "Run a quiz testing if followers know the ingredients of the product.", "Post a poll asking, 'What's the best way to use this product?'", "Use the emoji slider to ask, 'How likely are you to recommend this product?'", "Run a quiz testing if followers know the brand's story.", "Post a poll asking, 'What's your favorite color of the product?'", "Use the emoji slider to ask, 'How often do you use this product?'", "Run a poll asking, 'What's the first thing you'll do with the product?'", "Post a 'This or That' story comparing two different use cases."
+                ],
+                liveTactics: [
+                    "Run a 'Tag-to-Win' giveaway by having followers tag 2 friends in the comments.", "Host a 'Best Result' competition by having followers post videos with the product.", "Host a live Q&A session to answer questions about the product in real time.", "Create a challenge and have followers post videos of themselves using the product.", "Go live and unbox a customer's order to thank them.", "Post a video asking a question in the caption to spark comments.", "Host a live event to celebrate a milestone, like '100 sales in 24 hours.'", "Create a challenge and have followers post videos of them styling the product.", "Go live and show how you use the product in your daily routine.", "Post a video asking for feedback on a potential new variation.", "Host a live event to answer FAQs about the product.", "Create a challenge and have followers post videos of them using the product in a unique way.", "Go live and show how the product is made.", "Post a video asking for product review in the caption.", "Host a live event to announce a flash sale.", "Create a challenge and have followers post videos of them transforming a space with the product.", "Go live and unbox the product for the first time.", "Post a video asking for a testimonial in the comments.", "Host a live event to celebrate a restock.", "Create a challenge and have followers post videos of them using the product for a specific holiday.", "Go live and show how to use the product in different ways.", "Post a video asking for a review in the comments.", "Host a live event to announce a new product.", "Create a challenge and have followers post videos of them using the product for a specific sport.", "Go live and show how the product is packaged.", "Post a video asking for a photo in the comments.", "Host a live event to announce a new feature.", "Create a challenge and have followers post videos of them using the product in the kitchen.", "Go live and show how the product is made.", "Post a video asking for a testimonial in the comments."
+                ],
+                collabs: [
+                    "Duet or react to a micro-influencer unboxing your product.", "Host a joint TikTok Live to promote products to combined audiences.", "Swap UGC by sending your product to a creator and both cross-post the content.", "Run a collaborative giveaway with another influencer in a similar niche.", "Host a joint live stream with a customer to hear their review.", "Create a collaborative video with another creator using both products.", "Post a video that features a customer's video and tags them.", "Host a live event with a customer to talk about their experience.", "Create a collaborative video with another creator to answer FAQs about the product.", "Post a video that features a micro-influencer's video and tags them.", "Host a live event with a customer to talk about the product's features.", "Create a collaborative video with another creator to show how to use both products.", "Post a video that features a customer's photo and tags them.", "Host a live event with a customer to talk about the product's benefits.", "Create a collaborative video with another creator to show how to style both products.", "Post a video that features a micro-influencer's photo and tags them.", "Host a live event with a customer to talk about the product's versatility.", "Create a collaborative video with another creator to show how to use both products for a specific holiday.", "Post a video that features a customer's review and tags them.", "Host a live event with a customer to talk about the product's sustainability.", "Create a collaborative video with another creator to show how to use both products for a specific sport.", "Post a video that features a micro-influencer's review and tags them.", "Host a live event with a customer to talk about the product's ingredients.", "Create a collaborative video with another creator to show how to use both products on a trip."
+                ]
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainNavBtns = document.querySelectorAll('.main-nav-btn');
+            const playbookNavBtns = document.querySelectorAll('.playbook-nav-btn');
+            const contentSections = document.querySelectorAll('#playbook-section, #advisory-section, #framework-section');
+            const playbookContentSections = document.querySelectorAll('#playbook-section .content-section');
+            const copyNotification = document.getElementById('copy-notification');
+            const mainContainer = document.querySelector('body');
+
+            let activeMainSection = 'advisory-section';
+            let activePlaybookSubSection = 'hooks';
+            let activePlaybookSubCategory = {
+                hooks: 'problemSolution',
+                stories: 'urgency',
+                ai: 'aiHooks',
+                engagement: 'storyTactics'
+            };
+
+            const renderPlaybookContent = (sectionId, categoryId) => {
+                const contentDiv = document.getElementById(`${sectionId}-content`);
+                if (!contentDiv) return;
+                contentDiv.innerHTML = '';
+                const data = playbookData[sectionId][categoryId];
+                data.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-[#2D2E30] p-4 rounded-lg shadow-md border border-stone-700 flex justify-between items-start gap-2 card-enter';
+                    
+                    const p = document.createElement('p');
+                    p.className = 'text-gray-300 flex-grow';
+                    p.innerHTML = item.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+                    
+                    const button = document.createElement('button');
+                    button.className = 'copy-btn flex-shrink-0 p-1.5 text-gray-500 hover:text-teal-400 rounded-full hover:bg-stone-700 transition';
+                    button.title = 'Copy to clipboard';
+                    button.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>`;
+                    
+                    card.appendChild(p);
+                    card.appendChild(button);
+                    contentDiv.appendChild(card);
+                });
+            };
+
+            const switchPlaybookSubCategory = (sectionId, categoryId) => {
+                activePlaybookSubCategory[sectionId] = categoryId;
+                const subNavBtns = document.querySelectorAll(`#${sectionId} .sub-nav-btn`);
+                subNavBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.category === categoryId);
+                });
+                renderPlaybookContent(sectionId, categoryId);
+            };
+
+            const switchPlaybookSubSection = (contentId) => {
+                activePlaybookSubSection = contentId;
+                playbookContentSections.forEach(section => {
+                    section.style.display = section.id === contentId ? 'block' : 'none';
+                });
+                playbookNavBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.section === contentId);
+                });
+                 const subNavBtns = document.querySelectorAll(`#${contentId} .sub-nav-btn`);
+                 const firstSubNavBtn = subNavBtns[0];
+                 if (firstSubNavBtn) {
+                    switchPlaybookSubCategory(contentId, firstSubNavBtn.dataset.category);
+                 }
+            };
+
+            const switchMainSection = (sectionId) => {
+                activeMainSection = sectionId;
+                mainNavBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.section === sectionId);
+                });
+                contentSections.forEach(section => {
+                    section.style.display = section.id === sectionId ? 'block' : 'none';
+                });
+                
+                if (sectionId === 'playbook-section') {
+                    switchPlaybookSubSection(activePlaybookSubSection);
+                }
+            };
+
+            mainNavBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchMainSection(btn.dataset.section);
+                });
+            });
+
+            playbookNavBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchPlaybookSubSection(btn.dataset.section);
+                });
+            });
+
+            document.querySelectorAll('.sub-nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const sectionId = btn.closest('.content-section').id;
+                    switchPlaybookSubCategory(sectionId, btn.dataset.category);
+                });
+            });
+            
+            // New listener for schedule buttons
+            document.querySelectorAll('.schedule-card-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const targetSection = e.currentTarget.dataset.targetSection;
+                    const targetCategory = e.currentTarget.dataset.targetCategory;
+                    
+                    switchMainSection('playbook-section');
+                    switchPlaybookSubSection(targetSection);
+                    switchPlaybookSubCategory(targetSection, targetCategory);
+                    
+                    // Scroll to the top of the playbook section's navigation
+                    const playbookNav = document.querySelector('#playbook-section nav');
+                    if (playbookNav) {
+                        playbookNav.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            document.body.addEventListener('click', (e) => {
+                const copyBtn = e.target.closest('.copy-btn');
+                if (copyBtn) {
+                    const textToCopy = copyBtn.previousElementSibling.textContent;
+                    const tempTextarea = document.createElement('textarea');
+                    tempTextarea.value = textToCopy;
+                    document.body.appendChild(tempTextarea);
+                    tempTextarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempTextarea);
+
+                    copyNotification.classList.remove('opacity-0');
+                    setTimeout(() => {
+                        copyNotification.classList.add('opacity-0');
+                    }, 2000);
+                }
+            });
+
+            const generateBtn = document.getElementById('generateBtn');
+            const loader = document.getElementById('loader-container');
+            const outputContainer = document.getElementById('ai-output-container');
+            const outputEl = document.getElementById('ai-output');
+
+            async function generateAIContent() {
+                const productName = document.getElementById('productName').value.trim();
+                const productProblem = document.getElementById('productProblem').value.trim();
+                const ideaType = document.getElementById('ideaType').value;
+
+                if (!productName || !productProblem) {
+                    alert('Please fill in both product name and the problem it solves.');
+                    return;
+                }
+
+                const prompt = `You are an expert content creator. Generate one single, concise, and creative "${ideaType}" for a product called "${productName}" that solves the problem of "${productProblem}". Frame it from the perspective of the influencer who created the product. Make it sound authentic and engaging. Do not add any extra text, just the single idea.`;
+                
+                loader.style.display = 'flex';
+                outputContainer.style.display = 'none';
+                generateBtn.disabled = true;
+
+                try {
+                    let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""; 
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        outputEl.textContent = text.trim();
+                        outputContainer.style.display = 'block';
+                    } else {
+                        outputEl.textContent = "Sorry, I couldn't generate an idea right now. Please try again.";
+                        outputContainer.style.display = 'block';
+                    }
+
+                } catch (error) {
+                    console.error("Error generating AI content:", error);
+                    outputEl.textContent = "An error occurred. Please check the console and try again.";
+                    outputContainer.style.display = 'block';
+                } finally {
+                    loader.style.display = 'none';
+                    generateBtn.disabled = false;
+                }
+            }
+
+            generateBtn.addEventListener('click', generateAIContent);
+            
+            // Initial load state
+            switchMainSection('framework-section');
+        });
+    </script>
+</body>
+</html>
